@@ -1,0 +1,107 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // --- Helpers ---
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    function isGroupMember(groupId) {
+      return isSignedIn() && exists(/databases/$(database)/documents/groups/$(groupId)/members/$(request.auth.uid));
+    }
+
+    function isGroupAdmin(groupId) {
+      return isGroupMember(groupId) && 
+        get(/databases/$(database)/documents/groups/$(groupId)/members/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // --- Users ---
+    match /users/{uid} {
+      // Owner can do everything with their own doc
+      allow read, create, update, delete: if isOwner(uid);
+
+      match /deeds/{deedId} {
+        // Owner manages their own deeds
+        allow read, create, update, delete: if isOwner(uid);
+        // Group members can read deeds for dashboard aggregation
+        allow read: if isSignedIn();
+      }
+
+      // Progress logs
+      match /logs/{logId} {
+        allow read, create, update, delete: if isOwner(uid);
+        // Group members can read logs for dashboard aggregation
+        allow read: if isSignedIn();
+      }
+    }
+
+    // --- Groups ---
+    match /groups/{groupId} {
+      // Any signed-in user can read any group (needed for join flow and discovery)
+      allow read: if isSignedIn();
+
+      // Any signed-in user can create a group
+      allow create: if isSignedIn();
+
+      // Only group admins can update/delete group settings
+      allow update, delete: if isGroupAdmin(groupId);
+
+      // Members subcollection
+      match /members/{memberUid} {
+        // Any signed-in user can read their own membership doc (needed for collectionGroup)
+        // Group members can see the full member list
+        allow read: if isSignedIn();
+
+        // A user can create their own membership (join a group)
+        allow create: if isSignedIn() && request.auth.uid == memberUid;
+
+        // Admin can update any member; member can update their own preferences
+        allow update: if isGroupAdmin(groupId) ||
+          (isSignedIn() && request.auth.uid == memberUid);
+
+        // Admin can remove members, and a member can leave
+        allow delete: if isGroupAdmin(groupId) || (isSignedIn() && request.auth.uid == memberUid);
+      }
+
+      // Aggregated stats for dashboards
+      match /dayStats/{logicalDayId} {
+        allow read: if isGroupMember(groupId);
+        allow write: if false;
+
+        match /userStats/{uid} {
+          allow read: if isGroupMember(groupId);
+          allow write: if false;
+        }
+      }
+
+      // Join requests
+      match /joinRequests/{requestId} {
+        allow create: if isSignedIn();
+        allow read: if isSignedIn();
+        allow update, delete: if isGroupAdmin(groupId);
+      }
+
+      // Invite codes
+      match /invites/{inviteId} {
+        allow read, write: if isGroupAdmin(groupId);
+      }
+    }
+
+    // --- Deed Templates (read-only) ---
+    match /deedTemplates/{templateId} {
+      allow read: if isSignedIn();
+      allow write: if false;
+    }
+
+    // --- Moderation / Reports ---
+    match /reports/{reportId} {
+      allow create: if isSignedIn() && request.resource.data.reporterUid == request.auth.uid;
+      allow read, update, delete: if false;
+    }
+  }
+}

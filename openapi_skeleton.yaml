@@ -1,0 +1,1020 @@
+openapi: 3.0.3
+info:
+  title: Family Good Deeds Tracker API
+  description: >
+    Skeleton OpenAPI specification for the Family Good Deeds Tracker app (PRD/TechSpec V1.2).
+    This is a starting point for engineering teams to extend with full request/response details,
+    pagination, and error models.
+  version: "1.2.0"
+servers:
+  - url: https://api.example.com
+security:
+  - bearerAuth: []
+tags:
+  - name: Auth
+  - name: Users
+  - name: Groups
+  - name: Deeds
+  - name: Progress
+  - name: Dashboards
+  - name: Moderation
+
+paths:
+  /health:
+    get:
+      summary: Health check
+      security: []
+      responses:
+        "200":
+          description: OK
+
+  /auth/otp/request:
+    post:
+      tags: [Auth]
+      summary: Request OTP for phone or email login
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OtpRequest"
+      responses:
+        "200":
+          description: OTP requested
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OtpRequestResponse"
+
+  /auth/otp/verify:
+    post:
+      tags: [Auth]
+      summary: Verify OTP and issue tokens
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OtpVerifyRequest"
+      responses:
+        "200":
+          description: Verified
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthTokens"
+
+  /auth/token/refresh:
+    post:
+      tags: [Auth]
+      summary: Refresh access token
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RefreshTokenRequest"
+      responses:
+        "200":
+          description: Refreshed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthTokens"
+
+  /users/me:
+    get:
+      tags: [Users]
+      summary: Get current user profile
+      responses:
+        "200":
+          description: User profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+    patch:
+      tags: [Users]
+      summary: Update current user profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserUpdate"
+      responses:
+        "200":
+          description: Updated user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+  /groups:
+    get:
+      tags: [Groups]
+      summary: List groups for current user
+      parameters:
+        - $ref: "#/components/parameters/PageSize"
+        - $ref: "#/components/parameters/PageToken"
+      responses:
+        "200":
+          description: Group list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GroupListResponse"
+    post:
+      tags: [Groups]
+      summary: Create a new group
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GroupCreate"
+      responses:
+        "201":
+          description: Created group
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Group"
+
+  /groups/public:
+    get:
+      tags: [Groups]
+      summary: Search/list public groups
+      parameters:
+        - name: q
+          in: query
+          required: false
+          schema:
+            type: string
+        - $ref: "#/components/parameters/PageSize"
+        - $ref: "#/components/parameters/PageToken"
+      responses:
+        "200":
+          description: Public groups
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GroupListResponse"
+
+  /groups/{groupId}:
+    parameters:
+      - $ref: "#/components/parameters/GroupId"
+    get:
+      tags: [Groups]
+      summary: Get group details
+      responses:
+        "200":
+          description: Group
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Group"
+    patch:
+      tags: [Groups]
+      summary: Update group (admin only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GroupUpdate"
+      responses:
+        "200":
+          description: Updated group
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Group"
+
+  /groups/{groupId}/members:
+    parameters:
+      - $ref: "#/components/parameters/GroupId"
+    get:
+      tags: [Groups]
+      summary: List group members
+      parameters:
+        - $ref: "#/components/parameters/PageSize"
+        - $ref: "#/components/parameters/PageToken"
+      responses:
+        "200":
+          description: Members
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GroupMemberListResponse"
+
+  /groups/{groupId}/invite:
+    parameters:
+      - $ref: "#/components/parameters/GroupId"
+    post:
+      tags: [Groups]
+      summary: Create invite link/code (admin only)
+      responses:
+        "200":
+          description: Invite created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InviteResponse"
+
+  /groups/{groupId}/join:
+    parameters:
+      - $ref: "#/components/parameters/GroupId"
+    post:
+      tags: [Groups]
+      summary: Join a public group (open or approval)
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JoinGroupRequest"
+      responses:
+        "200":
+          description: Joined or join request created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JoinGroupResponse"
+
+  /groups/{groupId}/join-requests:
+    parameters:
+      - $ref: "#/components/parameters/GroupId"
+    get:
+      tags: [Groups]
+      summary: List join requests (admin only)
+      parameters:
+        - $ref: "#/components/parameters/PageSize"
+        - $ref: "#/components/parameters/PageToken"
+      responses:
+        "200":
+          description: Join requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JoinRequestListResponse"
+
+  /groups/{groupId}/join-requests/{requestId}/approve:
+    post:
+      tags: [Groups]
+      summary: Approve a join request (admin only)
+      parameters:
+        - $ref: "#/components/parameters/GroupId"
+        - $ref: "#/components/parameters/RequestId"
+      responses:
+        "200":
+          description: Approved
+
+  /groups/{groupId}/join-requests/{requestId}/reject:
+    post:
+      tags: [Groups]
+      summary: Reject a join request (admin only)
+      parameters:
+        - $ref: "#/components/parameters/GroupId"
+        - $ref: "#/components/parameters/RequestId"
+      responses:
+        "200":
+          description: Rejected
+
+  /deed-templates:
+    get:
+      tags: [Deeds]
+      summary: List deed templates (read-only)
+      responses:
+        "200":
+          description: Templates
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeedTemplateListResponse"
+
+  /users/me/deeds:
+    get:
+      tags: [Deeds]
+      summary: List current user's deeds
+      parameters:
+        - name: groupId
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Deeds
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserDeedListResponse"
+    post:
+      tags: [Deeds]
+      summary: Create a user deed
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserDeedCreate"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserDeed"
+
+  /users/me/deeds/{deedId}:
+    parameters:
+      - $ref: "#/components/parameters/DeedId"
+    patch:
+      tags: [Deeds]
+      summary: Update a user deed
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserDeedUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserDeed"
+    delete:
+      tags: [Deeds]
+      summary: Delete a user deed
+      responses:
+        "204":
+          description: Deleted
+
+  /users/me/deeds/{deedId}/progress:
+    post:
+      tags: [Progress]
+      summary: Update progress for a deed (today or grace-close previous day)
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProgressUpdateRequest"
+      responses:
+        "200":
+          description: Updated progress
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProgressUpdateResponse"
+        "409":
+          description: Grace window closed or invalid logical day update
+
+  /users/me/deeds/{deedId}/progress/undo:
+    post:
+      tags: [Progress]
+      summary: Undo last progress update for the deed (same logical day)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UndoProgressRequest"
+      responses:
+        "200":
+          description: Undone
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProgressUpdateResponse"
+
+  /dashboards/me:
+    get:
+      tags: [Dashboards]
+      summary: Get personal dashboard for a logical day
+      parameters:
+        - name: logicalDayId
+          in: query
+          required: false
+          schema:
+            type: string
+            example: "2026-02-19"
+      responses:
+        "200":
+          description: Personal dashboard
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MyDashboardResponse"
+
+  /groups/{groupId}/dashboard:
+    get:
+      tags: [Dashboards]
+      summary: Get group dashboard (ratios-only, no timestamps)
+      parameters:
+        - $ref: "#/components/parameters/GroupId"
+        - name: logicalDayId
+          in: query
+          required: false
+          schema:
+            type: string
+            example: "2026-02-19"
+      responses:
+        "200":
+          description: Group dashboard
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GroupDashboardResponse"
+
+  /reports:
+    post:
+      tags: [Moderation]
+      summary: Report a group/member (for public groups)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReportCreate"
+      responses:
+        "201":
+          description: Created
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    GroupId:
+      name: groupId
+      in: path
+      required: true
+      schema:
+        type: string
+    DeedId:
+      name: deedId
+      in: path
+      required: true
+      schema:
+        type: string
+    RequestId:
+      name: requestId
+      in: path
+      required: true
+      schema:
+        type: string
+    PageSize:
+      name: pageSize
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+    PageToken:
+      name: pageToken
+      in: query
+      required: false
+      schema:
+        type: string
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: false
+      schema:
+        type: string
+
+  schemas:
+    OtpChannel:
+      type: string
+      enum: [phone, email]
+
+    OtpRequest:
+      type: object
+      required: [channel, identifier]
+      properties:
+        channel:
+          $ref: "#/components/schemas/OtpChannel"
+        identifier:
+          type: string
+          description: Phone number (E.164) or email
+        purpose:
+          type: string
+          enum: [login]
+          default: login
+
+    OtpRequestResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+        retryAfterSeconds:
+          type: integer
+
+    OtpVerifyRequest:
+      type: object
+      required: [channel, identifier, code]
+      properties:
+        channel:
+          $ref: "#/components/schemas/OtpChannel"
+        identifier:
+          type: string
+        code:
+          type: string
+          minLength: 4
+          maxLength: 10
+
+    RefreshTokenRequest:
+      type: object
+      required: [refreshToken]
+      properties:
+        refreshToken:
+          type: string
+
+    AuthTokens:
+      type: object
+      required: [accessToken, refreshToken, user]
+      properties:
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+        user:
+          $ref: "#/components/schemas/User"
+
+    User:
+      type: object
+      required: [id, displayName]
+      properties:
+        id:
+          type: string
+        displayName:
+          type: string
+        photoUrl:
+          type: string
+          nullable: true
+        timezone:
+          type: string
+          example: "Asia/Riyadh"
+        createdAt:
+          type: string
+          format: date-time
+
+    UserUpdate:
+      type: object
+      properties:
+        displayName:
+          type: string
+        photoUrl:
+          type: string
+          nullable: true
+        timezone:
+          type: string
+
+    GroupVisibilityMode:
+      type: string
+      enum: [private, public-approval, public-open]
+
+    Group:
+      type: object
+      required: [id, name, visibilityMode, timezone, cutoffTime, graceHours]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        photoUrl:
+          type: string
+          nullable: true
+        visibilityMode:
+          $ref: "#/components/schemas/GroupVisibilityMode"
+        timezone:
+          type: string
+        cutoffTime:
+          type: string
+          description: "HH:mm in group timezone"
+          example: "00:00"
+        graceHours:
+          type: integer
+          example: 6
+        createdAt:
+          type: string
+          format: date-time
+
+    GroupCreate:
+      type: object
+      required: [name, visibilityMode]
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        photoUrl:
+          type: string
+        visibilityMode:
+          $ref: "#/components/schemas/GroupVisibilityMode"
+        timezone:
+          type: string
+          default: "Asia/Riyadh"
+        cutoffTime:
+          type: string
+          example: "00:00"
+
+    GroupUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        photoUrl:
+          type: string
+        visibilityMode:
+          $ref: "#/components/schemas/GroupVisibilityMode"
+        timezone:
+          type: string
+        cutoffTime:
+          type: string
+
+    GroupListResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/Group"
+        nextPageToken:
+          type: string
+          nullable: true
+
+    GroupRole:
+      type: string
+      enum: [admin, member]
+
+    GroupMember:
+      type: object
+      required: [userId, role]
+      properties:
+        userId:
+          type: string
+        role:
+          $ref: "#/components/schemas/GroupRole"
+        joinedAt:
+          type: string
+          format: date-time
+        privacyMode:
+          type: string
+          enum: [ratioOnly, detail, hidden]
+          default: ratioOnly
+
+    GroupMemberListResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/GroupMember"
+        nextPageToken:
+          type: string
+          nullable: true
+
+    InviteResponse:
+      type: object
+      properties:
+        inviteCode:
+          type: string
+        inviteUrl:
+          type: string
+
+    JoinGroupRequest:
+      type: object
+      properties:
+        inviteCode:
+          type: string
+
+    JoinGroupResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [joined, requested]
+        requestId:
+          type: string
+          nullable: true
+
+    JoinRequest:
+      type: object
+      properties:
+        id:
+          type: string
+        requesterUid:
+          type: string
+        status:
+          type: string
+          enum: [pending, approved, rejected]
+        createdAt:
+          type: string
+          format: date-time
+
+    JoinRequestListResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/JoinRequest"
+        nextPageToken:
+          type: string
+          nullable: true
+
+    WorshipType:
+      type: string
+      enum: [heart, tongue, body]
+
+    MetricType:
+      type: string
+      enum: [boolean, count, pages, minutes, pages_minutes]
+
+    RecurrenceType:
+      type: string
+      enum: [daily, weekly, daysOfWeek, timesPerWeek, weeklyTarget]
+
+    RecurrenceRule:
+      type: object
+      required: [type]
+      properties:
+        type:
+          $ref: "#/components/schemas/RecurrenceType"
+        daysOfWeek:
+          type: array
+          items:
+            type: integer
+            minimum: 0
+            maximum: 6
+          description: 0=Sunday..6=Saturday
+        timesPerWeek:
+          type: integer
+          minimum: 1
+          maximum: 21
+        weeklyTarget:
+          type: number
+          description: target amount per week (pages/minutes/count)
+
+    Reminder:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+        times:
+          type: array
+          items:
+            type: string
+            example: "21:00"
+
+    UserDeed:
+      type: object
+      required: [id, name, worshipType, metricType, recurrence]
+      properties:
+        id:
+          type: string
+        groupId:
+          type: string
+          nullable: true
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        worshipType:
+          $ref: "#/components/schemas/WorshipType"
+        metricType:
+          $ref: "#/components/schemas/MetricType"
+        targetCount:
+          type: integer
+          nullable: true
+        targetPages:
+          type: integer
+          nullable: true
+        targetMinutes:
+          type: integer
+          nullable: true
+        recurrence:
+          $ref: "#/components/schemas/RecurrenceRule"
+        privacyLevel:
+          type: string
+          enum: [hidden, ratioOnly, detail]
+          default: ratioOnly
+        reminders:
+          $ref: "#/components/schemas/Reminder"
+        startDate:
+          type: string
+          format: date
+          nullable: true
+        endDate:
+          type: string
+          format: date
+          nullable: true
+
+    UserDeedCreate:
+      allOf:
+        - $ref: "#/components/schemas/UserDeed"
+    UserDeedUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        worshipType:
+          $ref: "#/components/schemas/WorshipType"
+        metricType:
+          $ref: "#/components/schemas/MetricType"
+        targetCount:
+          type: integer
+        targetPages:
+          type: integer
+        targetMinutes:
+          type: integer
+        recurrence:
+          $ref: "#/components/schemas/RecurrenceRule"
+        privacyLevel:
+          type: string
+          enum: [hidden, ratioOnly, detail]
+        reminders:
+          $ref: "#/components/schemas/Reminder"
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+
+    UserDeedListResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/UserDeed"
+
+    DeedTemplate:
+      type: object
+      required: [id, name, category, worshipType, metricType]
+      properties:
+        id:
+          type: string
+        category:
+          type: string
+        name:
+          type: string
+        worshipType:
+          $ref: "#/components/schemas/WorshipType"
+        metricType:
+          $ref: "#/components/schemas/MetricType"
+
+    DeedTemplateListResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/DeedTemplate"
+
+    ProgressUpdateRequest:
+      type: object
+      required: [mode]
+      properties:
+        mode:
+          type: string
+          enum: [tapCounter, manual]
+        closePrevious:
+          type: boolean
+          default: false
+          description: true only during grace window to close previous logical day
+        delta:
+          type: integer
+          nullable: true
+          description: increment/decrement for tapCounter
+        valueCount:
+          type: integer
+          nullable: true
+        valuePages:
+          type: integer
+          nullable: true
+        valueMinutes:
+          type: integer
+          nullable: true
+
+    ProgressUpdateResponse:
+      type: object
+      properties:
+        logicalDayId:
+          type: string
+        completedCount:
+          type: integer
+          nullable: true
+        completedPages:
+          type: integer
+          nullable: true
+        completedMinutes:
+          type: integer
+          nullable: true
+        remainingCount:
+          type: integer
+          nullable: true
+        remainingPages:
+          type: integer
+          nullable: true
+        remainingMinutes:
+          type: integer
+          nullable: true
+        ratio:
+          type: number
+          minimum: 0
+          maximum: 1
+
+    UndoProgressRequest:
+      type: object
+      properties:
+        logicalDayId:
+          type: string
+          nullable: true
+
+    MyDashboardResponse:
+      type: object
+      properties:
+        logicalDayId:
+          type: string
+        overallRatio:
+          type: number
+        deeds:
+          type: array
+          items:
+            type: object
+            properties:
+              deedId:
+                type: string
+              name:
+                type: string
+              ratio:
+                type: number
+              remainingHint:
+                type: string
+
+    GroupDashboardResponse:
+      type: object
+      properties:
+        groupId:
+          type: string
+        logicalDayId:
+          type: string
+        members:
+          type: array
+          items:
+            type: object
+            properties:
+              userId:
+                type: string
+              ratio:
+                type: number
+              bucket:
+                type: string
+        buckets:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              count:
+                type: integer
+
+    ReportCreate:
+      type: object
+      required: [type, targetId, reason]
+      properties:
+        type:
+          type: string
+          enum: [group, member]
+        targetId:
+          type: string
+        reason:
+          type: string
+        details:
+          type: string

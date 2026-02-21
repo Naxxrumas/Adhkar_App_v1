@@ -22,8 +22,16 @@ export enum Recurrence {
 export interface User {
   id: string;
   name: string;
+  email?: string;
+  phoneNumber?: string;
   avatar?: string;
   timezone: string;
+}
+
+export interface SubItem {
+  id: string; // unique ID for sub-item (could be index or hash)
+  text: string;
+  target: number;
 }
 
 export interface Deed {
@@ -39,6 +47,7 @@ export interface Deed {
   recurrence: Recurrence;
   isCounterMode: boolean;
   privacyLevel: 'hidden' | 'ratio' | 'details';
+  subItems?: SubItem[]; // For complex deeds like Adhkar
 }
 
 export interface ProgressLog {
@@ -47,6 +56,7 @@ export interface ProgressLog {
   date: string; // YYYY-MM-DD
   value: number;
   valueSecondary?: number;
+  subValues?: Record<string, number>; // Used for tracking SubItem progress (id -> current count)
   updatedAt: number;
 }
 
