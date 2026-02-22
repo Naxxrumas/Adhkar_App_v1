@@ -34,7 +34,7 @@ const DeedManager: React.FC<DeedManagerProps> = ({ onDeedAdded }) => {
         try {
             const groupId = activeGroup?.id || 'personal';
             const dataToSave = preset ? { ...formData, ...preset, groupId } : { ...formData, groupId };
-            await createDeed(user.uid, dataToSave as any);
+            await createDeed(user.id, dataToSave as any);
             setIsAdding(false);
             await onDeedAdded();
         } catch (error: any) {

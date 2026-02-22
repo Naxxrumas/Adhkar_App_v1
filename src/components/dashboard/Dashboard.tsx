@@ -24,7 +24,12 @@ const Dashboard: React.FC = () => {
     const [encouragement, setEncouragement] = useState<string>('');
     const [isSyncing, setIsSyncing] = useState(false);
     const [isEditingProfile, setIsEditingProfile] = useState(false);
-    const [profileName, setProfileName] = useState(user?.displayName || '');
+    const [profileName, setProfileName] = useState(user?.user_metadata?.full_name || '');
+
+    useEffect(() => {
+        if (userProfile?.displayName) setProfileName(userProfile.displayName);
+        else if (user?.user_metadata?.full_name) setProfileName(user.user_metadata.full_name);
+    }, [userProfile, user]);
     const [selectedGroupIndex, setSelectedGroupIndex] = useState(0);
     const [isLoadingGroup, setIsLoadingGroup] = useState(false);
 
@@ -44,11 +49,11 @@ const Dashboard: React.FC = () => {
     const fetchData = async () => {
         if (!user) return;
         try {
-            const fetchedDeeds = await getUserDeeds(user.uid);
+            const fetchedDeeds = await getUserDeeds(user.id);
             setDeeds(fetchedDeeds);
             const [tLogs, yLogs] = await Promise.all([
-                getDailyLogs(user.uid, todayStr),
-                getDailyLogs(user.uid, yesterdayStr)
+                getDailyLogs(user.id, todayStr),
+                getDailyLogs(user.id, yesterdayStr)
             ]);
             setTodayLogs(tLogs);
             setYesterdayLogs(yLogs);
@@ -92,7 +97,7 @@ const Dashboard: React.FC = () => {
         setTargetLogs(newLogs);
 
         try {
-            await logProgress(user.uid, activeGroup?.id || 'personal', deedId, dateStr, value, valueSecondary, subValues);
+            await logProgress(user.id, activeGroup?.id || 'personal', deedId, dateStr, value, valueSecondary, subValues);
         } catch (error) {
             console.error("Failed to sync log", error);
             await fetchData(); // rollback
@@ -104,7 +109,7 @@ const Dashboard: React.FC = () => {
     const handleDeleteDeed = async (deedId: string) => {
         if (!user) return;
         try {
-            await deleteDeed(user.uid, deedId);
+            await deleteDeed(user.id, deedId);
             await fetchData();
         } catch (error: any) {
             console.error('Failed to delete deed', error);
@@ -320,10 +325,10 @@ const Dashboard: React.FC = () => {
                     <div className="p-4 space-y-6 text-right">
                         <div className="flex items-center gap-4 bg-white p-4 rounded-2xl shadow-sm border border-slate-100 mb-2">
                             <div className="w-16 h-16 bg-slate-200 rounded-full flex items-center justify-center overflow-hidden shrink-0">
-                                {user?.photoURL ? <img src={user.photoURL} alt="Profile" className="w-full h-full object-cover" /> : <UserIcon size={32} className="text-slate-400" />}
+                                {userProfile?.photoUrl || user?.user_metadata?.avatar_url ? <img src={userProfile?.photoUrl || user?.user_metadata?.avatar_url} alt="Profile" className="w-full h-full object-cover" /> : <UserIcon size={32} className="text-slate-400" />}
                             </div>
                             <div className="flex-1 min-w-0">
-                                <h2 className="text-xl font-bold text-slate-800">{user?.displayName || user?.phoneNumber || 'المستخدم'}</h2>
+                                <h2 className="text-xl font-bold text-slate-800">{userProfile?.displayName || user?.user_metadata?.full_name || user?.phone || 'المستخدم'}</h2>
                                 <p className="text-slate-500 text-sm">عضو نشط</p>
                                 {userProfile?.email && (
                                     <p className="text-xs text-slate-400 mt-1 truncate" dir="ltr">📧 {userProfile.email}</p>

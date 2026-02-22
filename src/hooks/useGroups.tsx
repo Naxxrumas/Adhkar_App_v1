@@ -19,7 +19,7 @@ export const useGroups = () => {
 
         setLoading(true);
         try {
-            const fetchedGroups = await getUserGroups(user.uid);
+            const fetchedGroups = await getUserGroups(user.id);
             setGroups(fetchedGroups);
             if (fetchedGroups.length > 0) {
                 // For MVP, auto-select the first group

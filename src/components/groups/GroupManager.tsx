@@ -26,7 +26,7 @@ const GroupManager: React.FC<GroupManagerProps> = ({ groups, refreshGroups }) =>
         if (!user) return;
         setIsLeavingLoading(true);
         try {
-            await leaveGroup(user.uid, groupId);
+            await leaveGroup(user.id, groupId);
             setLeavingGroupId(null);
             await refreshGroups();
         } catch (error: any) {
@@ -41,7 +41,7 @@ const GroupManager: React.FC<GroupManagerProps> = ({ groups, refreshGroups }) =>
         e.preventDefault();
         if (!user) return;
         try {
-            await createGroup(user.uid, formData);
+            await createGroup(user.id, formData);
             setIsCreating(false);
             await refreshGroups();
         } catch (error) {
@@ -53,7 +53,7 @@ const GroupManager: React.FC<GroupManagerProps> = ({ groups, refreshGroups }) =>
         e.preventDefault();
         if (!user || !joinCode) return;
         try {
-            await joinGroup(user.uid, joinCode);
+            await joinGroup(user.id, joinCode);
             setIsJoining(false);
             setJoinCode('');
             await refreshGroups();
