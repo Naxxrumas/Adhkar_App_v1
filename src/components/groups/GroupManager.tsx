@@ -39,13 +39,21 @@ const GroupManager: React.FC<GroupManagerProps> = ({ groups, refreshGroups }) =>
 
     const handleCreate = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!user) return;
+        console.log("handleCreate clicked!", user);
+        if (!user) {
+            console.error("No user found in GroupManager handleCreate!");
+            return;
+        }
         try {
+            console.log("Calling createGroup with data:", formData);
             await createGroup(user.id, formData);
+            console.log("createGroup succeeded!");
             setIsCreating(false);
             await refreshGroups();
-        } catch (error) {
+            alert('تم إنشاء المجموعة بنجاح!');
+        } catch (error: any) {
             console.error("Failed to create group", error);
+            alert('فشل إنشاء المجموعة: ' + (error.message || 'خطأ غير معروف'));
         }
     };
 
@@ -57,9 +65,10 @@ const GroupManager: React.FC<GroupManagerProps> = ({ groups, refreshGroups }) =>
             setIsJoining(false);
             setJoinCode('');
             await refreshGroups();
+            alert('تم الانضمام بنجاح!');
         } catch (error: any) {
             console.error("Failed to join group", error);
-            alert('فشل الانضمام: ' + (error.message || 'المجموعة غير موجودة'));
+            alert('فشل الانضمام: ' + (error.message || 'خطأ غير معروف'));
         }
     };
 

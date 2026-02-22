@@ -8,7 +8,11 @@ export interface GroupCreateData {
 }
 
 export const createGroup = async (userId: string, data: GroupCreateData) => {
+    console.log("Inside createGroup, userId:", userId, "data:", data);
+    console.log("supabase client instance:", supabase);
+
     // 1. Create the group document
+    console.log("Attempting to insert group into DB...");
     const { data: newGroup, error: groupError } = await supabase
         .from('groups')
         .insert({
@@ -21,9 +25,12 @@ export const createGroup = async (userId: string, data: GroupCreateData) => {
         .select()
         .single();
 
+    console.log("Insert group completed. groupError:", groupError, "newGroup:", newGroup);
+
     if (groupError) throw groupError;
 
     // 2. Add the creator as an admin member
+    console.log("Attempting to insert member...");
     const { error: memberError } = await supabase
         .from('group_members')
         .insert({
@@ -31,6 +38,8 @@ export const createGroup = async (userId: string, data: GroupCreateData) => {
             user_id: userId,
             role: 'admin',
         });
+
+    console.log("Insert member completed. memberError:", memberError);
 
     if (memberError) throw memberError;
 
@@ -60,8 +69,18 @@ export const getUserGroups = async (userId: string) => {
         return [];
     }
 
-    // Map nested data to flat object matching old format
-    return memberGroups.map((mg: any) => mg.groups);
+    // Map nested data to flat object matching old format and filter out nulls
+    return memberGroups
+        .map((mg: any) => mg.groups)
+        .filter((g: any) => g !== null && g !== undefined)
+        .map((g: any) => ({
+            id: g.id,
+            name: g.name,
+            adminId: g.admin_id,
+            cutoffTime: g.cutoff_time,
+            gracePeriodHours: g.grace_period_hours,
+            visibility: g.visibility
+        }));
 };
 
 export const joinGroup = async (userId: string, groupId: string) => {

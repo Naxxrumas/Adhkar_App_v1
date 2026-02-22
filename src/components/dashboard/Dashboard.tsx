@@ -74,7 +74,7 @@ const Dashboard: React.FC = () => {
         const cutoff = new Date();
         cutoff.setHours(h, m, 0, 0);
         const diff = (now.getTime() - cutoff.getTime()) / (1000 * 60 * 60);
-        return diff >= 0 && diff <= (activeGroup.graceHours || 6); // Grace period
+        return diff >= 0 && diff <= (activeGroup.gracePeriodHours || 6); // Grace period
     }, [activeGroup]);
 
     const updateProgress = async (deedId: string, value: number, valueSecondary?: number, subValues?: Record<string, number>, dateStr: string = todayStr) => {
