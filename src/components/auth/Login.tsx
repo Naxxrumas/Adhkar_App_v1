@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
 import { supabase } from '../../services/supabase';
 import { useNavigate, Link } from 'react-router-dom';
-import { Mail, Phone, Lock, Eye, EyeOff, Sparkles, ArrowLeft, LogIn } from 'lucide-react';
+import { Mail, Phone, Lock, Eye, EyeOff, Sparkles, ArrowLeft, LogIn, Palette } from 'lucide-react';
+import { useTheme, THEMES, ThemeKey } from '../../hooks/useTheme';
 
 type LoginMethod = 'email' | 'phone';
 
 const Login = () => {
+    const { c, theme, setTheme } = useTheme();
+    const themeKeys = Object.keys(THEMES) as ThemeKey[];
     const [loginMethod, setLoginMethod] = useState<LoginMethod>('email');
 
     // Email login state
@@ -154,36 +157,46 @@ const Login = () => {
     // Otherwise keep standard Email / Phone toggle.
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen p-4 relative overflow-hidden" dir="rtl">
+        <div className="flex flex-col items-center justify-center min-h-screen p-4 relative overflow-hidden transition-colors duration-500" dir="rtl" style={{ backgroundColor: c.authBgFrom }}>
             {/* Animated gradient background */}
-            <div className="absolute inset-0 bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50" />
-            <div className="absolute top-0 right-0 w-72 h-72 bg-emerald-200 rounded-full mix-blend-multiply filter blur-3xl opacity-40 animate-pulse" />
-            <div className="absolute bottom-0 left-0 w-72 h-72 bg-teal-200 rounded-full mix-blend-multiply filter blur-3xl opacity-40 animate-pulse" style={{ animationDelay: '2s' }} />
-            <div className="absolute top-1/3 left-1/3 w-64 h-64 bg-cyan-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse" style={{ animationDelay: '4s' }} />
+            <div
+                className="absolute inset-0 opacity-80 transition-all duration-500"
+                style={{ background: `linear-gradient(to bottom right, ${c.authBgFrom}, ${c.authBgVia}, ${c.authBgTo})` }}
+            />
+            <div className="absolute top-0 right-0 w-72 h-72 rounded-full filter blur-3xl opacity-40 animate-pulse transition-colors duration-500" style={{ backgroundColor: c.authBlob1 }} />
+            <div className="absolute bottom-0 left-0 w-72 h-72 rounded-full filter blur-3xl opacity-40 animate-pulse transition-colors duration-500" style={{ backgroundColor: c.authBlob2, animationDelay: '2s' }} />
+            <div className="absolute top-1/3 left-1/3 w-64 h-64 rounded-full filter blur-3xl opacity-30 animate-pulse transition-colors duration-500" style={{ backgroundColor: c.authBlob3, animationDelay: '4s' }} />
 
-            <div className="w-full max-w-sm relative z-10">
+            <div className="w-full max-w-sm relative z-10 flex flex-col gap-6">
                 {/* Logo / Header */}
-                <div className="text-center mb-6">
-                    <div className="w-16 h-16 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-xl shadow-emerald-200/50 transform hover:scale-105 transition-transform">
-                        <Sparkles className="text-white" size={28} />
+                <div className="text-center">
+                    <div
+                        className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-xl transform hover:scale-105 transition-all duration-500"
+                        style={{ background: `linear-gradient(to bottom right, ${c.gradientFrom}, ${c.gradientTo})`, boxShadow: `0 20px 25px -5px ${c.primaryShadow}` }}
+                    >
+                        <Sparkles className="text-[#ffffff]" size={28} />
                     </div>
-                    <h1 className="text-2xl font-black text-slate-800">تسجيل الدخول</h1>
-                    <p className="text-slate-500 text-sm mt-1">مرحباً بعودتك إلى مُسابقَة</p>
+                    <h1 className="text-2xl font-black" style={{ color: c.heading }}>تسجيل الدخول</h1>
+                    <p className="text-sm mt-1" style={{ color: c.muted }}>مرحباً بعودتك إلى مُسابقَة</p>
                     {isTestMode && <p className="text-amber-600 text-xs font-bold mt-2 bg-amber-50 inline-block px-3 py-1 rounded-full border border-amber-200">الوضع التجريبي نشط: استخدم البريد أو الجوال مباشرة مع كلمة المرور</p>}
                 </div>
 
                 {/* Card */}
-                <div className="p-6 bg-white/80 backdrop-blur-xl rounded-3xl shadow-xl shadow-slate-200/50 border border-white/50">
+                <div
+                    className="p-6 rounded-3xl shadow-xl backdrop-blur-xl border transition-colors duration-500"
+                    style={{ backgroundColor: c.authCard, borderColor: c.authCardBorder, boxShadow: `0 20px 25px -5px ${c.primaryShadow}` }}
+                >
                     {/* Method Toggle - Hidden in Test Mode */}
                     {!isTestMode && (
-                        <div className="flex bg-slate-100 rounded-xl p-1 mb-5">
+                        <div className="flex rounded-xl p-1 mb-5" style={{ backgroundColor: c.toggleBg }}>
                             <button
                                 type="button"
                                 onClick={() => { setLoginMethod('email'); setError(''); setConfirmationResult(null); }}
-                                className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-1.5 ${loginMethod === 'email'
-                                    ? 'bg-white text-emerald-600 shadow-sm'
-                                    : 'text-slate-400 hover:text-slate-600'
-                                    }`}
+                                className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-1.5 ${loginMethod === 'email' ? 'shadow-sm' : ''}`}
+                                style={{
+                                    backgroundColor: loginMethod === 'email' ? c.toggleActive : 'transparent',
+                                    color: loginMethod === 'email' ? c.primary : c.muted
+                                }}
                             >
                                 <Mail size={16} />
                                 البريد الإلكتروني
@@ -191,10 +204,11 @@ const Login = () => {
                             <button
                                 type="button"
                                 onClick={() => { setLoginMethod('phone'); setError(''); }}
-                                className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-1.5 ${loginMethod === 'phone'
-                                    ? 'bg-white text-emerald-600 shadow-sm'
-                                    : 'text-slate-400 hover:text-slate-600'
-                                    }`}
+                                className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-1.5 ${loginMethod === 'phone' ? 'shadow-sm' : ''}`}
+                                style={{
+                                    backgroundColor: loginMethod === 'phone' ? c.toggleActive : 'transparent',
+                                    color: loginMethod === 'phone' ? c.primary : c.muted
+                                }}
                             >
                                 <Phone size={16} />
                                 رقم الجوال
@@ -251,7 +265,8 @@ const Login = () => {
                             <button
                                 type="submit"
                                 disabled={isLoading}
-                                className="w-full py-3.5 bg-gradient-to-l from-emerald-600 to-teal-600 text-white rounded-xl font-bold hover:from-emerald-700 hover:to-teal-700 transition-all shadow-lg shadow-emerald-200/50 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02] active:scale-95"
+                                className="w-full py-3.5 text-white rounded-xl font-bold transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02] active:scale-95"
+                                style={{ background: `linear-gradient(to left, ${c.gradientFrom}, ${c.gradientTo})`, boxShadow: `0 10px 15px -3px ${c.primaryShadow}` }}
                             >
                                 {isLoading ? (
                                     <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -307,7 +322,8 @@ const Login = () => {
                             <button
                                 type="submit"
                                 disabled={isLoading}
-                                className="w-full py-3.5 bg-gradient-to-l from-emerald-600 to-teal-600 text-white rounded-xl font-bold hover:from-emerald-700 hover:to-teal-700 transition-all shadow-lg shadow-emerald-200/50 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02] active:scale-95"
+                                className="w-full py-3.5 text-white rounded-xl font-bold transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02] active:scale-95"
+                                style={{ background: `linear-gradient(to left, ${c.gradientFrom}, ${c.gradientTo})`, boxShadow: `0 10px 15px -3px ${c.primaryShadow}` }}
                             >
                                 {isLoading ? (
                                     <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -343,7 +359,8 @@ const Login = () => {
                             <button
                                 type="submit"
                                 disabled={isLoading}
-                                className="w-full py-3.5 bg-gradient-to-l from-emerald-600 to-teal-600 text-white rounded-xl font-bold hover:from-emerald-700 hover:to-teal-700 transition-all shadow-lg shadow-emerald-200/50 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02] active:scale-95"
+                                className="w-full py-3.5 text-white rounded-xl font-bold transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02] active:scale-95"
+                                style={{ background: `linear-gradient(to left, ${c.gradientFrom}, ${c.gradientTo})`, boxShadow: `0 10px 15px -3px ${c.primaryShadow}` }}
                             >
                                 {isLoading ? (
                                     <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -379,7 +396,8 @@ const Login = () => {
                             <button
                                 type="submit"
                                 disabled={isLoading}
-                                className="w-full py-3.5 bg-gradient-to-l from-emerald-600 to-teal-600 text-white rounded-xl font-bold hover:from-emerald-700 hover:to-teal-700 transition-all shadow-lg shadow-emerald-200/50 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02] active:scale-95"
+                                className="w-full py-3.5 text-white rounded-xl font-bold transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02] active:scale-95"
+                                style={{ background: `linear-gradient(to left, ${c.gradientFrom}, ${c.gradientTo})`, boxShadow: `0 10px 15px -3px ${c.primaryShadow}` }}
                             >
                                 {isLoading ? (
                                     <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -390,7 +408,8 @@ const Login = () => {
                             <button
                                 type="button"
                                 onClick={() => setConfirmationResult(null)}
-                                className="text-sm text-slate-500 hover:text-emerald-600 transition"
+                                className="text-sm transition"
+                                style={{ color: c.muted }}
                             >
                                 إعادة إرسال الرمز
                             </button>
@@ -423,14 +442,42 @@ const Login = () => {
                     )}
 
                     {/* Divider */}
-                    <div className="mt-6 pt-5 border-t border-slate-100 text-center">
-                        <p className="text-sm text-slate-500">
+                    <div className="mt-6 pt-5 border-t text-center" style={{ borderColor: c.navBorder }}>
+                        <p className="text-sm" style={{ color: c.muted }}>
                             ليس لديك حساب؟{' '}
-                            <Link to="/register" className="text-emerald-600 font-bold hover:text-emerald-700 transition inline-flex items-center gap-1">
+                            <Link to="/register" className="font-bold transition inline-flex items-center gap-1" style={{ color: c.primary }}>
                                 إنشاء حساب جديد
                                 <ArrowLeft size={14} />
                             </Link>
                         </p>
+                    </div>
+                </div>
+
+                {/* Inline Theme Selector for Login */}
+                <div
+                    className="p-3 rounded-2xl backdrop-blur-xl border transition-colors duration-500 animate-in slide-in-from-bottom-5 fade-in"
+                    style={{ backgroundColor: c.authCard, borderColor: c.authCardBorder }}
+                >
+                    <div className="flex items-center justify-center gap-3">
+                        {themeKeys.map((key) => {
+                            const t = THEMES[key];
+                            const isActive = theme === key;
+                            return (
+                                <button
+                                    key={key}
+                                    onClick={() => setTheme(key)}
+                                    className="w-10 h-10 rounded-full flex items-center justify-center transition-all transform hover:scale-110 active:scale-95 shadow-md"
+                                    style={{
+                                        background: key === 'dark'
+                                            ? `linear-gradient(135deg, #1e293b, #334155)`
+                                            : `linear-gradient(135deg, ${t.colors.gradientFrom}, ${t.colors.gradientTo})`,
+                                        border: isActive ? `2px solid ${c.heading}` : `2px solid transparent`,
+                                    }}
+                                >
+                                    {isActive ? <Palette size={18} className="text-[#ffffff]" /> : <span className="text-sm">{t.icon}</span>}
+                                </button>
+                            );
+                        })}
                     </div>
                 </div>
             </div>
