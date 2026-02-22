@@ -29,45 +29,6 @@ const Login = () => {
     const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
 
-    const isTestMode = import.meta.env.VITE_AUTH_TEST_MODE === 'true';
-
-    // --- Unified Login (Test Mode) ---
-    const handleUnifiedLogin = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setError('');
-        setIsLoading(true);
-
-        try {
-            let isPhone = false;
-            let loginIdentifier = identifier.trim();
-
-            if (/^[\d+]+$/.test(loginIdentifier)) {
-                isPhone = true;
-                if (!loginIdentifier.startsWith('+')) {
-                    loginIdentifier = `+966${loginIdentifier.replace(/^0/, '')}`;
-                }
-            }
-
-            const credentials = isPhone
-                ? { phone: loginIdentifier, password }
-                : { email: loginIdentifier, password };
-
-            const { error: signInError } = await supabase.auth.signInWithPassword(credentials);
-            if (signInError) throw signInError;
-            navigate('/');
-        } catch (err: any) {
-            console.error(err);
-            if (err.message?.includes('Invalid login credentials')) {
-                setError('المعرف أو كلمة المرور غير صحيحة');
-            } else if (err.message?.includes('Email not confirmed')) {
-                setError('البريد غير مؤكد (تجاوز هذا الخطأ يتطلب الإعداد المسبق)');
-            } else {
-                setError(err.message || 'فشل تسجيل الدخول');
-            }
-        } finally {
-            setIsLoading(false);
-        }
-    };
 
     // --- Email Login ---
     const handleEmailLogin = async (e: React.FormEvent) => {
@@ -153,8 +114,6 @@ const Login = () => {
         }
     };
 
-    // If test mode is enabled, we force the UI to the unified login (no toggle).
-    // Otherwise keep standard Email / Phone toggle.
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen p-4 relative overflow-hidden transition-colors duration-500" dir="rtl" style={{ backgroundColor: c.authBgFrom }}>
@@ -178,7 +137,6 @@ const Login = () => {
                     </div>
                     <h1 className="text-2xl font-black" style={{ color: c.heading }}>تسجيل الدخول</h1>
                     <p className="text-sm mt-1" style={{ color: c.muted }}>مرحباً بعودتك إلى مُسابقَة</p>
-                    {isTestMode && <p className="text-amber-600 text-xs font-bold mt-2 bg-amber-50 inline-block px-3 py-1 rounded-full border border-amber-200">الوضع التجريبي نشط: استخدم البريد أو الجوال مباشرة مع كلمة المرور</p>}
                 </div>
 
                 {/* Card */}
@@ -186,35 +144,32 @@ const Login = () => {
                     className="p-6 rounded-3xl shadow-xl backdrop-blur-xl border transition-colors duration-500"
                     style={{ backgroundColor: c.authCard, borderColor: c.authCardBorder, boxShadow: `0 20px 25px -5px ${c.primaryShadow}` }}
                 >
-                    {/* Method Toggle - Hidden in Test Mode */}
-                    {!isTestMode && (
-                        <div className="flex rounded-xl p-1 mb-5" style={{ backgroundColor: c.toggleBg }}>
-                            <button
-                                type="button"
-                                onClick={() => { setLoginMethod('email'); setError(''); setConfirmationResult(null); }}
-                                className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-1.5 ${loginMethod === 'email' ? 'shadow-sm' : ''}`}
-                                style={{
-                                    backgroundColor: loginMethod === 'email' ? c.toggleActive : 'transparent',
-                                    color: loginMethod === 'email' ? c.primary : c.muted
-                                }}
-                            >
-                                <Mail size={16} />
-                                البريد الإلكتروني
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => { setLoginMethod('phone'); setError(''); }}
-                                className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-1.5 ${loginMethod === 'phone' ? 'shadow-sm' : ''}`}
-                                style={{
-                                    backgroundColor: loginMethod === 'phone' ? c.toggleActive : 'transparent',
-                                    color: loginMethod === 'phone' ? c.primary : c.muted
-                                }}
-                            >
-                                <Phone size={16} />
-                                رقم الجوال
-                            </button>
-                        </div>
-                    )}
+                    <div className="flex rounded-xl p-1 mb-5" style={{ backgroundColor: c.toggleBg }}>
+                        <button
+                            type="button"
+                            onClick={() => { setLoginMethod('email'); setError(''); setConfirmationResult(null); }}
+                            className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-1.5 ${loginMethod === 'email' ? 'shadow-sm' : ''}`}
+                            style={{
+                                backgroundColor: loginMethod === 'email' ? c.toggleActive : 'transparent',
+                                color: loginMethod === 'email' ? c.primary : c.muted
+                            }}
+                        >
+                            <Mail size={16} />
+                            البريد الإلكتروني
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => { setLoginMethod('phone'); setError(''); }}
+                            className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-1.5 ${loginMethod === 'phone' ? 'shadow-sm' : ''}`}
+                            style={{
+                                backgroundColor: loginMethod === 'phone' ? c.toggleActive : 'transparent',
+                                color: loginMethod === 'phone' ? c.primary : c.muted
+                            }}
+                        >
+                            <Phone size={16} />
+                            رقم الجوال
+                        </button>
+                    </div>
 
                     {error && (
                         <div className="mb-4 p-3 bg-red-50 text-red-600 text-sm rounded-xl border border-red-100 flex items-center gap-2">
@@ -223,65 +178,10 @@ const Login = () => {
                         </div>
                     )}
 
-                    {/* Unified Login Form (Test Mode) */}
-                    {isTestMode && (
-                        <form onSubmit={handleUnifiedLogin} className="flex flex-col gap-4">
-                            <div>
-                                <label className="block text-sm font-bold text-slate-600 mb-1.5">البريد الإلكتروني أو الجوال</label>
-                                <div className="relative">
-                                    <Mail size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                                    <input
-                                        type="text"
-                                        placeholder="البريد أو 05XXXXXXXX"
-                                        className="w-full p-3 pr-10 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 focus:outline-none bg-white/50 backdrop-blur-sm transition-all text-left"
-                                        dir="ltr"
-                                        value={identifier}
-                                        onChange={e => setIdentifier(e.target.value)}
-                                        required
-                                    />
-                                </div>
-                            </div>
-                            <div>
-                                <label className="block text-sm font-bold text-slate-600 mb-1.5">كلمة المرور</label>
-                                <div className="relative">
-                                    <Lock size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                                    <input
-                                        type={showPassword ? 'text' : 'password'}
-                                        placeholder="••••••••"
-                                        className="w-full p-3 pr-10 pl-10 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 focus:outline-none bg-white/50 backdrop-blur-sm transition-all"
-                                        value={password}
-                                        onChange={e => setPassword(e.target.value)}
-                                        required
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={() => setShowPassword(!showPassword)}
-                                        className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition"
-                                    >
-                                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                                    </button>
-                                </div>
-                            </div>
-                            <button
-                                type="submit"
-                                disabled={isLoading}
-                                className="w-full py-3.5 text-white rounded-xl font-bold transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02] active:scale-95"
-                                style={{ background: `linear-gradient(to left, ${c.gradientFrom}, ${c.gradientTo})`, boxShadow: `0 10px 15px -3px ${c.primaryShadow}` }}
-                            >
-                                {isLoading ? (
-                                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                                ) : (
-                                    <>
-                                        <LogIn size={20} />
-                                        دخول سريع
-                                    </>
-                                )}
-                            </button>
-                        </form>
-                    )}
+
 
                     {/* Email Login Form */}
-                    {!isTestMode && loginMethod === 'email' && (
+                    {loginMethod === 'email' && (
                         <form onSubmit={handleEmailLogin} className="flex flex-col gap-4">
                             <div>
                                 <label className="block text-sm font-bold text-slate-600 mb-1.5">البريد الإلكتروني</label>
@@ -338,7 +238,7 @@ const Login = () => {
                     )}
 
                     {/* Phone Login Form */}
-                    {!isTestMode && loginMethod === 'phone' && !confirmationResult && (
+                    {loginMethod === 'phone' && !confirmationResult && (
                         <form onSubmit={handleSendOTP} className="flex flex-col gap-4">
                             <div>
                                 <label className="block text-sm font-bold text-slate-600 mb-1.5">رقم الجوال (السعودي)</label>

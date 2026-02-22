@@ -17,8 +17,6 @@ const Register = () => {
     const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
 
-    const isTestMode = import.meta.env.VITE_AUTH_TEST_MODE === 'true';
-
     const handleRegister = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
@@ -126,7 +124,6 @@ const Register = () => {
                     </div>
                     <h1 className="text-2xl font-black" style={{ color: c.heading }}>إنشاء حساب جديد</h1>
                     <p className="text-sm mt-1" style={{ color: c.muted }}>انضم إلى مُسابقَة وتابع أعمالك</p>
-                    {isTestMode && <p className="text-amber-600 text-xs font-bold mt-2 bg-amber-50 inline-block px-3 py-1 rounded-full border border-amber-200">الوضع التجريبي نشط: سيتم إنشاء الحساب مباشرة</p>}
                 </div>
 
                 {/* Card */}
