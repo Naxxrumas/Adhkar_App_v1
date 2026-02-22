@@ -1,8 +1,9 @@
 
 export enum WorshipType {
-  HEART = 'HEART',   // عبادة قلب
-  TONGUE = 'TONGUE', // عبادة لسان
-  BODY = 'BODY'      // عبادة بدن
+  HEART = 'HEART',           // عبادة قلب
+  TONGUE = 'TONGUE',         // عبادة لسان
+  BODY = 'BODY',             // عبادة بدن
+  COMPREHENSIVE = 'COMPREHENSIVE' // عبادة شاملة/متكاملة
 }
 
 export enum MetricType {
