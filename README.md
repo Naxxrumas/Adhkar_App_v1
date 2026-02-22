@@ -27,7 +27,7 @@
 
 ### 3. إعدادات Google OAuth
 - استخدم Site URL لبروجكت Supabase في حقل Authorized JavaScript Origins داخل Google Cloud Console.
-- ضع Redirect URI الخاص بـ Supabase في حقل Authorized Redirect URIs (`https://<supabase-id>.supabase.co/auth/v1/callback`).
+- ضع Redirect URI الخاص بـ Supabase في حقل Authorized Redirect URIs (`https://lzemyipgzzdqhgkpndud.supabase.co/auth/v1/callback`).
 
 ### 4. تحقق من الجاهزية (Test Cloud Readiness)
 - لم تعد بحاجة لتشغيل جهازك أو Antigravity ليعمل التطبيق.

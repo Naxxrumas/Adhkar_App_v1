@@ -23,8 +23,8 @@ Use this checklist to ensure the application is ready for 100% cloud-only produc
 
 ## 3. Google OAuth Configuration
 
-- [ ] In Google Cloud Console, ensure the **Authorized JavaScript Origins** is set to your Supabase Project URL (e.g., `https://[SUPABASE_PROJECT_ID].supabase.co`).
-- [ ] Ensure the **Authorized Redirect URIs** is your Supabase callback URL (e.g. `https://[SUPABASE_PROJECT_ID].supabase.co/auth/v1/callback`).
+- [ ] In Google Cloud Console, ensure the **Authorized JavaScript Origins** is set to your Supabase Project URL (e.g., `https://lzemyipgzzdqhgkpndud.supabase.co`).
+- [ ] Ensure the **Authorized Redirect URIs** is your Supabase callback URL (e.g. `https://lzemyipgzzdqhgkpndud.supabase.co/auth/v1/callback`).
 
 ## 4. Run & Test Instructions (Without Local Setup)
 

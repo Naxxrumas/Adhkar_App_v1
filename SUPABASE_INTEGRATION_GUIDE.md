@@ -50,7 +50,7 @@ VITE_SUPABASE_ANON_KEY=المفتاح_الخاص_بك_هنا
    - اذهب إلى **APIs & Services** > **OAuth consent screen**، وحدد نوع المستخدمين كـ "External"، ثم املأ البيانات الأساسية (اسم التطبيق، البريد، إلخ).
    - انتقل إلى **Credentials** وانقر على **Create Credentials** ثم اختر **OAuth client ID**.
    - اختر نوع التطبيق **Web application**.
-   - في خانة **Authorized redirect URIs**، أدخل رابط إعادة التوجيه الخاص بـ Supabase (والذي يكون عادةً بالصيغة: `https://[PROJECT_ID].supabase.co/auth/v1/callback`). 
+   - في خانة **Authorized redirect URIs**، أدخل رابط إعادة التوجيه الخاص بـ Supabase (والذي يكون عادةً بالصيغة: `https://lzemyipgzzdqhgkpndud.supabase.co/auth/v1/callback`). 
    *يمكنك إيجاد هذا الرابط من لوحة تحكم Supabase > Auth > Providers > Google.*
 
 2. **في لوحة تحكم Supabase**:
