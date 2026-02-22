@@ -106,9 +106,9 @@ const FocusOverlay: React.FC<FocusOverlayProps> = ({ deed, log, onUpdate, onClos
     }, [activeItem, isAllCompleted, overallValue, subValues, deed, log?.valueSecondary, onUpdate, viewIndex]);
 
     return (
-        <div className="fixed inset-0 z-50 flex flex-col bg-slate-900/95 text-white backdrop-blur-md animate-in fade-in duration-300" dir="rtl">
+        <div className="fixed inset-0 z-50 flex flex-col bg-slate-900/95 text-[#ffffff] backdrop-blur-md animate-in fade-in duration-300" dir="rtl">
             {/* Header */}
-            <header className="flex justify-between items-center p-6 border-b border-white/10 relative z-20">
+            <header className="flex justify-between items-center p-6 border-b border-[#ffffff]/10 relative z-20">
                 <div>
                     <h2 className="text-xl font-bold" style={{ color: c.primaryLight }}>{deed.name}</h2>
                     {deed.subItems && !isAllCompleted && (
@@ -119,7 +119,7 @@ const FocusOverlay: React.FC<FocusOverlayProps> = ({ deed, log, onUpdate, onClos
                 </div>
                 <button
                     onClick={onClose}
-                    className="w-10 h-10 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition-all text-white tap-scale"
+                    className="w-10 h-10 flex items-center justify-center rounded-full bg-[#ffffff]/10 hover:bg-[#ffffff]/20 transition-all text-[#ffffff] tap-scale"
                 >
                     <X size={24} />
                 </button>
@@ -136,14 +136,14 @@ const FocusOverlay: React.FC<FocusOverlayProps> = ({ deed, log, onUpdate, onClos
                             className="w-32 h-32 rounded-full mx-auto flex items-center justify-center mb-6 shadow-2xl"
                             style={{ backgroundColor: c.primary, boxShadow: `0 0 40px ${c.primaryShadow}` }}
                         >
-                            <Check size={64} strokeWidth={3} className="text-white" />
+                            <Check size={64} strokeWidth={3} className="text-[#ffffff]" />
                         </div>
                         <h1 className="text-3xl font-black mb-2" style={{ color: c.primaryLight }}>تقبل الله طاعتكم!</h1>
                         <p className="text-lg opacity-80">لقد أتممت جميع الأذكار في هذا الورد بنجاح.</p>
 
                         <button
                             onClick={(e) => { e.stopPropagation(); onClose(); }}
-                            className="mt-8 px-8 py-3 rounded-xl font-bold text-lg bg-white/10 hover:bg-white/20 transition-all"
+                            className="mt-8 px-8 py-3 rounded-xl font-bold text-lg bg-[#ffffff]/10 hover:bg-[#ffffff]/20 transition-all"
                         >
                             العودة للرئيسية
                         </button>
@@ -175,14 +175,14 @@ const FocusOverlay: React.FC<FocusOverlayProps> = ({ deed, log, onUpdate, onClos
                                 <button
                                     onClick={handlePrev}
                                     disabled={viewIndex === 0}
-                                    className="p-3 rounded-full bg-white/10 hover:bg-white/20 transition-all text-white disabled:opacity-30 tap-scale"
+                                    className="p-3 rounded-full bg-[#ffffff]/10 hover:bg-[#ffffff]/20 transition-all text-[#ffffff] disabled:opacity-30 tap-scale"
                                 >
                                     <ChevronRight size={24} />
                                 </button>
                                 <button
                                     onClick={handleNext}
                                     disabled={deed.subItems && viewIndex === deed.subItems.length - 1}
-                                    className="p-3 rounded-full bg-white/10 hover:bg-white/20 transition-all text-white disabled:opacity-30 tap-scale"
+                                    className="p-3 rounded-full bg-[#ffffff]/10 hover:bg-[#ffffff]/20 transition-all text-[#ffffff] disabled:opacity-30 tap-scale"
                                 >
                                     <ChevronLeft size={24} />
                                 </button>
@@ -190,7 +190,7 @@ const FocusOverlay: React.FC<FocusOverlayProps> = ({ deed, log, onUpdate, onClos
                         )}
 
                         {/* Interactive Progress bar at the bottom */}
-                        <div className="absolute bottom-0 left-0 right-0 h-2 bg-white/10 z-20">
+                        <div className="absolute bottom-0 left-0 right-0 h-2 bg-[#ffffff]/10 z-20">
                             <div
                                 className="h-full transition-all duration-300 ease-out"
                                 style={{ width: `${progressPercent}%`, backgroundColor: c.primary }}
